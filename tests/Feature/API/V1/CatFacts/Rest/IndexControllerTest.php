@@ -52,4 +52,16 @@ class IndexControllerTest extends TestCase
             'per_page' => 15,
         ]);
     }
+
+    public function testPageLinksKeepPageSize(): void
+    {
+        $response = $this->json('GET', '/api/v1/cat-facts', [
+            'pageSize' => 15,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('pageSize=15', $response->json('next_page_url'));
+        $this->assertStringContainsString('pageSize=15', $response->json('first_page_url'));
+        $this->assertStringContainsString('pageSize=15', $response->json('last_page_url'));
+    }
 }
