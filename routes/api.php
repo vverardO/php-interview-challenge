@@ -11,3 +11,11 @@ Route::group(['prefix' => 'v1'], function () {
         return response()->json(['name' => config('app.name'), 'version' => 1]);
     });
 });
+
+Route::group(['prefix' => 'v2'], function () {
+    require_once __DIR__ . '/v2/dog-facts.php';
+
+    Route::get('/', function () {
+        return response()->json(['name' => config('app.name'), 'version' => 2]);
+    });
+});

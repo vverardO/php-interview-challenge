@@ -6,6 +6,8 @@ A REST API for animal facts built with Laravel 9. It exposes two resources, **Ca
 
 This repository is my solution to the Jobsity PHP Human Interview Challenge, which asked for two things: fix the bug in storing cat facts, and build Dog Facts following the conventions already in place for Cat Facts.
 
+On top of that, there is a second version of Dog Facts under `/api/v2`, built the way I would approach it myself: invokable controllers straight on the model, API resources, simple filters with a metadata endpoint, a search timeout with a default response and a short-lived cache on retrieval. Version 1 is kept as the challenge asked for it. See [API v2 — Dog Facts](#api-v2--dog-facts).
+
 | | What it was | What it is now |
 |---|---|---|
 | **Resources** | Cat Facts only | Cat Facts and Dog Facts, with the same five endpoints each |
@@ -13,7 +15,8 @@ This repository is my solution to the Jobsity PHP Human Interview Challenge, whi
 | **Installing** | `composer install` failed on current PHP versions | Installs with the documented command |
 | **Starting** | `vendor/bin/sail up` failed to build the image | Starts on PHP 8.2 and MySQL 8.0 |
 | **Pagination links** | Dropped `pageSize`, so the next page fell back to 25 items | Keep the requested `pageSize` |
-| **Tests** | 18 tests, 4 failing | 46 tests, all passing |
+| **Dog Facts v2** | — | `/api/v2/dog-facts` with filters, metadata and a cached retrieval |
+| **Tests** | 18 tests, 4 failing | 76 tests, all passing |
 | **Documentation** | The challenge statement and setup steps | Setup, API reference, structure, decisions and the AI conversation log |
 
 The original statement is summarised in [The challenge](#the-challenge), and each change is explained in [What was done](#what-was-done).
@@ -25,6 +28,7 @@ The original statement is summarised in [The challenge](#the-challenge), and eac
 - [Setup](#setup)
 - [Running the tests](#running-the-tests)
 - [API reference](#api-reference)
+- [API v2 — Dog Facts](#api-v2--dog-facts)
 - [Project structure](#project-structure)
 - [The challenge](#the-challenge)
 - [What was done](#what-was-done)
@@ -96,7 +100,7 @@ Useful commands afterwards:
 vendor/bin/sail test
 ```
 
-The suite has 46 tests and all of them pass.
+The suite has 76 tests and all of them pass: 46 for version 1 and 30 for Dog Facts v2.
 
 The tests run against the same database as the local environment and rely on the seeded data (for example, the "page 2" tests need more than one page of facts). Run `vendor/bin/sail artisan migrate --seed` before the first test run. Tests clean up the rows they create.
 
@@ -216,9 +220,110 @@ A validation error looks like this:
 }
 ```
 
+## API v2 — Dog Facts
+
+Base URL: `http://localhost:8042/api/v2`
+
+Version 1 follows the challenge conventions (controllers under `API/V1/.../Rest`, a repository, raw paginator responses). Version 2 is the same resource built the way I would start it today:
+
+- **Invokable controllers straight on the model**, under `app/Http/Controllers/DogFacts`. The application is API-only, so there is no `API` directory, and there is no repository: the queries are short enough to live in the controller and a model scope.
+- **API resource** (`DogFactResource`) for every response, so items come wrapped in `data` and lists come with `links` and `meta`.
+- **Simple filters** declared once in `DogFact::FILTERS`, applied by the `filter` scope and published by a metadata endpoint, so clients can discover them.
+- **Search with a timeout and a default.** The list query is capped at `DOG_FACTS_INDEX_TIMEOUT_MS` milliseconds (default `2000`). A heavy search does not hang the request: it falls back to an empty page with a message saying the data is still being processed.
+- **Short-lived cache on retrieval.** The first `GET /dog-facts/{id}` stores the fact in the application cache for `DOG_FACTS_CACHE_MINUTES` minutes (default `5`). Updating or deleting through v2 clears it. A fact that does not exist is not cached and returns `404`.
+- **Status codes.** Store returns `201 Created`; validation, not found and delete behave as in v1.
+
+| Method | Path | Description | Success |
+|---|---|---|---|
+| `GET` | `/dog-facts` | Paginated and filtered list | `200` |
+| `GET` | `/dog-facts/metadata` | Available filters and pagination parameters | `200` |
+| `GET` | `/dog-facts/{id}` | Retrieve one fact (cached) | `200` |
+| `POST` | `/dog-facts` | Store a fact | `201` |
+| `PUT` | `/dog-facts/{id}` | Update a fact | `200` |
+| `DELETE` | `/dog-facts/{id}` | Delete a fact | `204` |
+
+### Filters and pagination
+
+| Query parameter | Rules | Description |
+|---|---|---|
+| `fact` | string, up to 255 characters | Part of the fact text |
+| `createdFrom` | `Y-m-d` | Facts created on or after this date |
+| `createdUntil` | `Y-m-d`, not before `createdFrom` | Facts created on or before this date |
+| `page` | integer, at least 1 | Page to return, default `1` |
+| `pageSize` | integer, 1 to 100 | Facts per page, default `25` |
+
+The maximum page size comes from `PAGINATION_MAX_SIZE`. Invalid values return `422`. Page links keep every filter and `pageSize`.
+
+```bash
+curl "http://localhost:8042/api/v2/dog-facts?fact=number%2012&pageSize=2"
+```
+
+```json
+{
+  "data": [
+    {"id": 12, "fact": "This is dog fact number 12", "created_at": "...", "updated_at": "..."},
+    {"id": 120, "fact": "This is dog fact number 120", "created_at": "...", "updated_at": "..."}
+  ],
+  "links": {
+    "first": "http://localhost:8042/api/v2/dog-facts?fact=number%2012&pageSize=2&page=1",
+    "last": "http://localhost:8042/api/v2/dog-facts?fact=number%2012&pageSize=2&page=6",
+    "prev": null,
+    "next": "http://localhost:8042/api/v2/dog-facts?fact=number%2012&pageSize=2&page=2"
+  },
+  "meta": {"current_page": 1, "from": 1, "last_page": 6, "links": ["..."], "path": "...", "per_page": 2, "to": 2, "total": 11}
+}
+```
+
+### Timeout and the default
+
+The search runs with MySQL's `max_execution_time` set to `DOG_FACTS_INDEX_TIMEOUT_MS` (default `2000`, so 2 seconds), and the session limit goes back to `0` right after. When the query is cut off, the response is still `200`, with the same shape, an empty page and a default message:
+
+```json
+{
+  "data": [],
+  "links": {"first": "...?pageSize=10&page=1", "last": "...?pageSize=10&page=1", "prev": null, "next": null},
+  "meta": {"current_page": 1, "from": null, "last_page": 1, "links": ["..."], "path": "...", "per_page": 10, "to": null, "total": 0},
+  "message": "Data is still being processed, please try again shortly"
+}
+```
+
+A search that simply matches nothing returns an empty page without the message, so clients can tell the two apart.
+
+### Metadata
+
+```bash
+curl http://localhost:8042/api/v2/dog-facts/metadata
+```
+
+```json
+{
+  "filters": [
+    {"name": "fact", "type": "string", "description": "Part of the fact text"},
+    {"name": "createdFrom", "type": "date", "format": "Y-m-d", "description": "Facts created on or after this date"},
+    {"name": "createdUntil", "type": "date", "format": "Y-m-d", "description": "Facts created on or before this date"}
+  ],
+  "pagination": {
+    "page": {"type": "integer", "default": 1, "min": 1},
+    "pageSize": {"type": "integer", "default": 25, "min": 1, "max": 100}
+  }
+}
+```
+
+### Retrieve
+
+```bash
+curl http://localhost:8042/api/v2/dog-facts/1
+```
+
+```json
+{"data": {"id": 1, "fact": "This is dog fact number 1", "created_at": "...", "updated_at": "..."}}
+```
+
+When the fact does not exist, the response is `404`. Changes made through v1 do not clear the v2 cache, so a v2 retrieval can show the previous text for up to the cache duration.
+
 ## Project structure
 
-Dog Facts mirrors the structure that already existed for Cat Facts:
+Dog Facts v1 mirrors the structure that already existed for Cat Facts:
 
 ```
 app/
@@ -239,6 +344,20 @@ tests/Feature/
 ```
 
 Controllers handle HTTP only: they validate through a form request, call the repository and turn the result into a JSON response. Repositories are the only place that talks to Eloquent, and controllers receive them through the constructor, which is what lets the tests replace them with mocks to simulate storage failures.
+
+Dog Facts v2 lives alongside it:
+
+```
+app/
+  Http/
+    Controllers/DogFacts/      Index, Metadata, Show, Store, Update and Destroy invokable controllers
+    Requests/DogFacts/         IndexRequest (filters and pagination), SaveRequest (store and update)
+    Resources/                 DogFactResource
+  Models/DogFact.php           FILTERS, filter scope and cache key
+config/dog-facts.php           cache duration, search timeout and default message
+routes/v2/dog-facts.php        /api/v2/dog-facts routes
+tests/Feature/DogFacts/        endpoint, cache, timeout and default tests
+```
 
 ## The challenge
 
@@ -276,7 +395,7 @@ Controllers handle HTTP only: they validate through a form request, call the rep
 
 This solution is AI-assisted, as allowed by the challenge's AI usage policy. The full conversations, with my annotations, are in [`prompt.md`](prompt.md).
 
-**Tool:** Claude Code (Anthropic's CLI), running the Claude Fable 5.2 model.
+**Tools:** Claude Code (Anthropic's CLI) with the Claude Fable 5.2 model for version 1, and Cursor's agent with the Claude Opus 5.5 model for Dog Facts v2.
 
 ### How I work with AI
 
