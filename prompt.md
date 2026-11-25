@@ -1355,14 +1355,192 @@ o AI Usage do readme vamos desenrolar.... mas a ideia é que seja AI Assistida, 
 </details>
 
 <details>
-<summary>Actions (1)</summary>
+<summary>Actions (2)</summary>
 
 - Rewrite the AI usage section of the README and list transcript messages still lacking a translation
+- Add the missing translations and annotation, regenerate prompt.md and check the tail
+
+</details>
+
+**AI response:**
+
+> The "AI usage" section of the README was rewritten with your process and `prompt.md` was regenerated with the missing exchanges. Both are modified on `feature/dog-facts`, uncommitted.
+>
+> ## README
+>
+> The section now has two parts:
+>
+> - **"How I work with AI"**: you direct structure, tests and validation, and delegate only the writing of the code, which you then review. The flow described is: describe what you need pointing at the existing structures, code and tests together (TDD where possible), your validation, small commits and a PR with how it was, what was done and how it ended up. For a project in progress, it starts with the tests that cover the existing code and only then comes the change.
+> - **"How that went in this challenge"**: how that process applied here, with the facts from the conversation.
+>
+> One point I did not write the way you described it: the Dog Facts tests were made together with each increment, not before the code. The README says so, because `prompt.md` shows that order and the evaluators read both. The part about "starting with the tests of the existing code" matches what happened: the 4 failing tests located the Cat Facts bug.
+>
+> The PR with a description appears only as part of your method. I did not state that PRs #1 and #2 had that description, because I did not see them.
+>
+> ## prompt.md
+>
+> Exchanges 2.17 to 2.20 went in: the translation request, "do we have everything in place?", the question about tests and features, and this request. There is one new annotation, the 15th, saying that the first version of the AI section was my summary and that you replaced it with the description of your process. Read that one too.
+>
+> The file ends at this request, with the non-literal summary in place of this response.
+>
+> Commit message:
+>
+> ```
+> docs: describe the AI-assisted workflow and update prompt.md
+> ```
+>
+> After the commit, what is left is the PR from `feature/dog-facts` to `main` and checking that the fork is public.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> A seção "AI usage" do README foi reescrita com o seu processo e o `prompt.md` foi regenerado com as trocas que faltavam. Os dois estão modificados na `feature/dog-facts`, sem commit.
+>
+> ## README
+>
+> A seção agora tem duas partes:
+>
+> - **"How I work with AI"**: você direciona estrutura, testes e validação, e delega só a escrita do código, que depois revisa. O fluxo descrito é: descrever o que precisa apontando para as estruturas existentes, código e testes juntos (TDD onde possível), validação sua, commits pequenos e PR com como era, o que foi feito e como ficou. Para projeto em andamento, começa pelos testes que cobrem o código existente e só depois vem a alteração.
+> - **"How that went in this challenge"**: como esse processo se aplicou aqui, com os fatos da conversa.
+>
+> Um ponto que não escrevi como você descreveu: os testes dos Dog Facts foram feitos junto com cada incremento, não antes do código. O README diz isso, porque o `prompt.md` mostra essa ordem e os avaliadores leem os dois. A parte de "começar pelos testes do código existente" bate com o que aconteceu: os 4 testes falhando localizaram o bug dos Cat Facts.
+>
+> O PR com descrição aparece só como parte do seu método. Não afirmei que os PRs #1 e #2 tinham essa descrição, porque não os vi.
+>
+> ## prompt.md
+>
+> Entraram as trocas 2.17 a 2.20: o pedido da tradução, "temos tudo em seus lugares?", a pergunta sobre testes e funcionalidades, e este pedido. Há uma anotação nova, a 15ª, dizendo que a primeira versão da seção de IA era um resumo meu e que você a substituiu pela descrição do seu processo. Leia essa também.
+>
+> O arquivo termina neste pedido, com o resumo não literal no lugar desta resposta.
+>
+> Mensagem de commit:
+>
+> ```
+> docs: describe the AI-assisted workflow and update prompt.md
+> ```
+>
+> Depois do commit faltam o PR da `feature/dog-facts` para a `main` e conferir que o fork está público.
+
+</details>
+
+**Annotation:** The first version of the "AI usage" section of the README was the AI's own summary. I replaced it with a description of how I direct AI-assisted work, which the AI wrote up from the prompt above. The "How that went in this challenge" part compares that process with what actually happened here, including where it differed (the Dog Facts tests were written alongside the code, not before it).
+
+### Prompt 2.21
+
+```text
+update the project desc, so that it makes sense with what was done, in English... what it was, how it ended up...
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+atualiza o desc do projeto, para que faça sentido com o que foi feito, em ingles... o que era, como ficou...
+```
+
+</details>
+
+<details>
+<summary>Actions (3)</summary>
+
+- Read the current README intro and sections, and check the GitHub repo description and pull requests
+- Add a before/after description to the README and regenerate prompt.md with the latest exchanges
+- Edit `README.md`
+
+</details>
+
+**AI response:**
+
+> I updated the description at the top of `README.md`: there is now a "Description" section with a "What it was / What it is now" table. `prompt.md` was regenerated with this exchange (2.21). Both are modified, uncommitted.
+>
+> The table compares seven points:
+>
+> | | What it was | What it is now |
+> |---|---|---|
+> | Resources | Cat Facts only | Cat Facts and Dog Facts |
+> | Storing a cat fact | Always rejected with `403` | Works |
+> | Installing | `composer install` failed | Installs with the documented command |
+> | Starting | `sail up` failed to build | Starts on PHP 8.2 and MySQL 8.0 |
+> | Pagination links | Dropped `pageSize` | Keep the requested `pageSize` |
+> | Tests | 18 tests, 4 failing | 46 tests, all passing |
+> | Documentation | Statement and setup steps | Setup, API reference, structure, decisions and AI log |
+>
+> Commit message:
+>
+> ```
+> docs: add before and after description to README
+> ```
+>
+> I understood "project desc" as the README description. On GitHub there are two empty descriptions that I did not touch:
+>
+> - **PR #3** is open with the title `feat: add dog facts data layer` and no body. The title no longer covers what the branch contains, and the README says your PRs describe how it was, what was done and how it ended up.
+> - **The repository description** (the "About" field) is blank.
+>
+> While at it: the repository is public, but GitHub lists it as your own repository, not as a fork. The statement asks for a fork; if you created it this way on purpose, that is fine.
+>
+> Do you want me to fill in the title and body of PR #3 and the repository "About" through `gh`? If so, the PR body would follow the same format: how it was, what was done, how it is now and how to test.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> Atualizei a descrição no topo do `README.md`: agora há uma seção "Description" com uma tabela "What it was / What it is now". O `prompt.md` foi regenerado com esta troca (2.21). Os dois estão modificados, sem commit.
+>
+> A tabela compara sete pontos:
+>
+> | | What it was | What it is now |
+> |---|---|---|
+> | Resources | Cat Facts only | Cat Facts and Dog Facts |
+> | Storing a cat fact | Always rejected with `403` | Works |
+> | Installing | `composer install` failed | Installs with the documented command |
+> | Starting | `sail up` failed to build | Starts on PHP 8.2 and MySQL 8.0 |
+> | Pagination links | Dropped `pageSize` | Keep the requested `pageSize` |
+> | Tests | 18 tests, 4 failing | 46 tests, all passing |
+> | Documentation | Statement and setup steps | Setup, API reference, structure, decisions and AI log |
+>
+> Mensagem de commit:
+>
+> ```
+> docs: add before and after description to README
+> ```
+>
+> Entendi "desc do projeto" como a descrição do README. No GitHub há duas descrições vazias que eu não toquei:
+>
+> - **PR #3** está aberto com o título `feat: add dog facts data layer` e sem corpo. O título já não cobre o que a branch contém, e o README diz que seus PRs descrevem como era, o que foi feito e como ficou.
+> - **A descrição do repositório** (o campo "About") está em branco.
+>
+> Aproveitando: o repositório está público, mas o GitHub o lista como repositório próprio, não como fork. O enunciado pede um fork; se você criou assim de propósito, tudo bem.
+>
+> Quer que eu preencha o título e o corpo do PR #3 e o "About" do repositório pelo `gh`? Se sim, o corpo do PR seguiria o mesmo formato: como era, o que foi feito, como ficou e como testar.
+
+</details>
+
+**Annotation:** I asked for the project description to show what the project was and what it is now. The AI wrote the comparison table at the top of the README from the facts already established in this conversation.
+
+### Prompt 2.22
+
+```text
+yes, fill those in too
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+sim, preenche também
+```
+
+</details>
+
+<details>
+<summary>Actions (2)</summary>
+
+- Check local state and what pull request 3 currently contains
+- Set the title and description of pull request 3 and the repository description on GitHub
 
 </details>
 
 **Outcome (a summary, not a verbatim AI message):**
 
-> The response to this last prompt is the rewritten "AI usage" section of `README.md` and this file, which the AI regenerated from the Claude Code session transcripts to include the latest exchanges. Its final message of that turn was written after the file was generated, so it is not reproduced here.
+> The response to the last prompt above was done on GitHub: the AI set the title and description of pull request #3 (how it was, what was done, how it is now, how to test) and the repository description, and regenerated this file to include the latest exchanges. Its final message of that turn was written after the file was generated, so it is not reproduced here.
 
-**Annotation:** The first version of the "AI usage" section of the README was the AI's own summary. I replaced it with a description of how I direct AI-assisted work, which the AI wrote up from the prompt above. The "How that went in this challenge" part compares that process with what actually happened here, including where it differed (the Dog Facts tests were written alongside the code, not before it).
+**Annotation:** The pull request description and the repository description on GitHub were written by the AI at my request, following the format I use for pull requests.

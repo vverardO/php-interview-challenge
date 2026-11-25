@@ -1,11 +1,26 @@
 # Animal Facts API — PHP Human Interview Challenge
 
+## Description
+
 A REST API for animal facts built with Laravel 9. It exposes two resources, **Cat Facts** and **Dog Facts**, each with paginated listing, retrieval, creation, update and deletion. All requests and responses are JSON.
 
-This repository is my solution to the Jobsity PHP Human Interview Challenge. The original statement is summarised in [The challenge](#the-challenge), and what I did about it in [What was done](#what-was-done).
+This repository is my solution to the Jobsity PHP Human Interview Challenge, which asked for two things: fix the bug in storing cat facts, and build Dog Facts following the conventions already in place for Cat Facts.
+
+| | What it was | What it is now |
+|---|---|---|
+| **Resources** | Cat Facts only | Cat Facts and Dog Facts, with the same five endpoints each |
+| **Storing a cat fact** | Always rejected with `403` | Works |
+| **Installing** | `composer install` failed on current PHP versions | Installs with the documented command |
+| **Starting** | `vendor/bin/sail up` failed to build the image | Starts on PHP 8.2 and MySQL 8.0 |
+| **Pagination links** | Dropped `pageSize`, so the next page fell back to 25 items | Keep the requested `pageSize` |
+| **Tests** | 18 tests, 4 failing | 46 tests, all passing |
+| **Documentation** | The challenge statement and setup steps | Setup, API reference, structure, decisions and the AI conversation log |
+
+The original statement is summarised in [The challenge](#the-challenge), and each change is explained in [What was done](#what-was-done).
 
 ## Contents
 
+- [Description](#description)
 - [Requirements](#requirements)
 - [Setup](#setup)
 - [Running the tests](#running-the-tests)
