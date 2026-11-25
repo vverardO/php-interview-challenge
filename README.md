@@ -259,9 +259,28 @@ Controllers handle HTTP only: they validate through a form request, call the rep
 
 ## AI usage
 
-This solution was developed with AI assistance, as allowed by the challenge's AI usage policy. The full conversations, with my annotations, are in [`prompt.md`](prompt.md).
+This solution is AI-assisted, as allowed by the challenge's AI usage policy. The full conversations, with my annotations, are in [`prompt.md`](prompt.md).
 
-- **Tool:** Claude Code (Anthropic's CLI), running the Claude Fable 5.2 model.
-- **AI-assisted:** diagnosing the setup failures and the cat facts bug, generating the Dog Facts code and tests from the Cat Facts conventions, and drafting this README and the commit messages.
-- **Mine:** the direction and pacing of the work (what to build, in which order and in which increments), the review of each increment before it was committed, the corrections recorded in `prompt.md`, and the git workflow (branches, pull requests and merges).
-- **Validation:** the full test suite after every increment, plus manual requests against the running API (pagination, validation errors and the store/update/delete cycle).
+**Tool:** Claude Code (Anthropic's CLI), running the Claude Fable 5.2 model.
+
+### How I work with AI
+
+I direct the work and the AI writes the code. Decisions about code structure, tests and validation are mine; what I delegate is the writing itself, and I review what comes back before it is committed.
+
+On new work, the process is:
+
+1. **Describe what I need**, pointing at the structures that already exist in the codebase, so the new code follows them instead of inventing its own.
+2. **Have the code and its tests written together**, test-first where possible (TDD), covering what needs to be covered.
+3. **Validate the result myself**: read the code, run the suite and exercise the behaviour.
+4. **Commit in small increments** and open a pull request describing how things were, what was done and how they are now.
+
+On a project that is already in progress, I start one step earlier: **tests first, to cover the code that exists**, and only then the change, followed by the same process.
+
+### How that went in this challenge
+
+- **Existing code first.** The Cat Facts suite was already there and was the starting point: its four failing store tests located the bug, and the same tests confirmed the fix.
+- **Existing structures as the specification.** Dog Facts was built by pointing the AI at the Cat Facts conventions (one invokable controller per action, form requests, a repository, feature tests), in increments I paced and reviewed: data layer, repository, HTTP layer, documentation.
+- **Tests.** The Dog Facts tests were written alongside each increment, mirroring the Cat Facts ones, rather than strictly before the code. I held the repository back until it had its own automated test, and the suite gained a check for the default page size, which the original tests did not cover.
+- **Corrections.** What I changed, rejected or sent back is annotated in `prompt.md`: for example the placeholder migration timestamp, a repository interface suggested from the wrong version of the statement, the decision to keep `pageSize` in the pagination links for both resources, and how the work was split into commits.
+- **Validation.** The full suite ran after every increment (from 18 tests to 46), plus manual requests against the running API: pagination, validation errors and the store, update and delete cycle.
+- **Git.** Branches, pull requests and merges are mine. The Sail fix and the cat facts fix each went through their own branch and pull request, and Dog Facts was developed on `feature/dog-facts`.

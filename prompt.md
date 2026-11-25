@@ -1186,8 +1186,183 @@ show, pelo jeito precisamos ajustar todos os roles do prompt para que fique cond
 
 </details>
 
-**Outcome (a summary, not a verbatim AI message):**
+**AI response:**
 
-> The response to this last prompt is this file: the AI regenerated `prompt.md` from the Claude Code session transcripts, added the exchanges that were missing, translated every prompt and response to English and kept the originals in collapsed blocks. Its final message of that turn was written after the file was generated, so it is not reproduced here.
+> Almost there: the English `prompt.md` has been generated with all the exchanges; I am adjusting two annotations that assumed things on your behalf and checking the result.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> Quase lá: o `prompt.md` em inglês já foi gerado com todas as trocas; estou ajustando duas anotações que presumiam coisas por você e conferindo o resultado.
+
+</details>
+
+<details>
+<summary>Actions (1)</summary>
+
+- Soften two annotations, regenerate prompt.md and review the co-author and interruption section
+
+</details>
+
+**AI response:**
+
+> `prompt.md` is up to date and in English, with the 17 exchanges of the main conversation and the 4 of the previous one. It is modified on `feature/dog-facts`, uncommitted.
+>
+> - **English with the original preserved.** Each prompt and each response appears translated, and right below there is a collapsed "Original" block with the Portuguese text exactly as it was written. I kept the originals because the policy asks for "the exact prompts you submitted and the responses you received"; the translation alone would no longer be the exact record. The file header explains this.
+> - **Missing exchanges.** The removal of the `Co-Authored-By`, the interrupted `git log`, the question about the commits with distinct times and this request went in.
+> - **Hash fixed.** I removed `a8be5b3` from the data layer annotation. The old hashes that appear inside my responses stayed as they were said, and an annotation warns that those commits were recreated later.
+>
+> About "adjusting so it is consistent": I updated the record and the annotations, but I did not alter what was said or remove exchanges. That includes the part where you redid the commits with other times; the annotation there says that you rebased onto `main`, recreated the three commits changing the timestamps and that the content is the same.
+>
+> The 14 annotations are still my draft in the first person, based on the conversation and on `git log`. Read the three new ones (co-author removal, recreation of the commits and translation) more carefully, because they describe your actions.
+>
+> The file ends at this request, with a summary marked as non-literal in place of this response. If the conversation continues, it becomes outdated again.
+>
+> Commit message:
+>
+> ```
+> docs: update prompt.md and translate it to English
+> ```
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> O `prompt.md` está atualizado e em inglês, com as 17 trocas da conversa principal e as 4 da anterior. Está modificado na `feature/dog-facts`, sem commit.
+>
+> - **Inglês com o original preservado.** Cada prompt e cada resposta aparece traduzido, e logo abaixo há um bloco recolhido "Original" com o texto em português exatamente como foi escrito. Mantive os originais porque a política pede "the exact prompts you submitted and the responses you received"; só a tradução deixaria de ser o registro exato. O cabeçalho do arquivo explica isso.
+> - **Trocas que faltavam.** Entraram a remoção do `Co-Authored-By`, o `git log` interrompido, a pergunta sobre os commits com tempos distintos e este pedido.
+> - **Hash corrigido.** Tirei o `a8be5b3` da anotação da camada de dados. Os hashes antigos que aparecem dentro das minhas respostas ficaram como foram ditos, e uma anotação avisa que aqueles commits foram recriados depois.
+>
+> Sobre "ajustar para ficar condizente": atualizei o registro e as anotações, mas não alterei o que foi dito nem removi trocas. Isso inclui a parte em que você refez os commits com outros horários; a anotação ali diz que você fez rebase sobre a `main`, recriou os três commits mudando os timestamps e que o conteúdo é o mesmo.
+>
+> As 14 anotações continuam sendo rascunho meu em primeira pessoa, baseadas na conversa e no `git log`. Leia as três novas (remoção do co-author, recriação dos commits e tradução) com mais atenção, porque descrevem ações suas.
+>
+> O arquivo termina neste pedido, com um resumo marcado como não literal no lugar desta resposta. Se a conversa continuar, ele fica desatualizado de novo.
+>
+> Mensagem de commit:
+>
+> ```
+> docs: update prompt.md and translate it to English
+> ```
+
+</details>
 
 **Annotation:** I asked for this file to be brought up to date and switched to English. The translations were written by the AI; the original text of every prompt and response is kept in the collapsed "Original" blocks.
+
+### Prompt 2.18
+
+```text
+great, do we have everything in place now?
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+show, agora temos tudo em seus lugares?
+```
+
+</details>
+
+<details>
+<summary>Actions (1)</summary>
+
+- Check working tree, branches, remote state, tracked deliverables and test results
+
+</details>
+
+### Prompt 2.19 (sent while the AI was still working)
+
+```text
+are the tests working and are the features developed?
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+os testes estão funcionais e as funcionalidades estão desenvolvidas?
+```
+
+</details>
+
+<details>
+<summary>Actions (2)</summary>
+
+- Compare local and remote branch, list test classes and results, hit both list endpoints
+- Compare local and remote branch, list test classes and results, hit both list endpoints
+
+</details>
+
+**AI response:**
+
+> Yes: the features are developed and the tests pass, but the delivery is not on `main` yet — `feature/dog-facts` is 5 commits ahead of it, so whoever opens the fork today does not see Dog Facts.
+>
+> **Tests and features**
+> - **Suite:** I just ran it and the 46 tests pass, in the 11 classes (5 for Cat Facts, 5 for Dog Facts and the repository one).
+> - **Cat Facts bug:** fixed; `POST /api/v1/cat-facts` works again.
+> - **Dog Facts:** list, retrieve, store, update and delete are implemented, with pagination, configurable `pageSize` and a default of 25.
+> - **API up:** the `cat-facts` and `dog-facts` listings respond 200 right now; the store, update and delete cycle I tested by hand earlier.
+>
+> **Delivery**
+> - **Files:** `README.md`, `prompt.md` at the root and the two PDFs in `docs/` are committed, and there is nothing pending in the working tree.
+> - **Remote:** `feature/dog-facts` is pushed and identical to the local one (`d72d6f2`).
+>
+> **What is missing**
+> 1. **Merge into `main`:** open the PR for `feature/dog-facts` and merge it.
+> 2. **Public fork:** check on GitHub; I cannot see the visibility from here.
+> 3. **`prompt.md`:** it ends at the translation request, so this exchange and the previous one are not in it. I will regenerate it when you say it is the last step.
+> 4. **`prompt.md` annotations and the README "AI usage" section:** they are still my draft in your name, pending your reading.
+> 5. **`bkp` branch:** it exists only locally, with the old commits; just do not push it.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> Sim: as funcionalidades estão desenvolvidas e os testes passam, mas a entrega ainda não está na `main` — a `feature/dog-facts` está 5 commits à frente dela, então quem abrir o fork hoje não vê os Dog Facts.
+>
+> **Testes e funcionalidades**
+> - **Suíte:** acabei de rodar e os 46 testes passam, nas 11 classes (5 de Cat Facts, 5 de Dog Facts e a do repositório).
+> - **Bug de Cat Facts:** corrigido; o `POST /api/v1/cat-facts` voltou a funcionar.
+> - **Dog Facts:** listar, buscar, criar, atualizar e apagar estão implementados, com paginação, `pageSize` configurável e padrão de 25.
+> - **API no ar:** as listagens de `cat-facts` e `dog-facts` respondem 200 agora; o ciclo criar, atualizar e apagar eu testei à mão mais cedo.
+>
+> **Entrega**
+> - **Arquivos:** `README.md`, `prompt.md` na raiz e os dois PDFs em `docs/` estão commitados, e não há nada pendente no working tree.
+> - **Remoto:** a `feature/dog-facts` está enviada e igual à local (`d72d6f2`).
+>
+> **O que falta**
+> 1. **Merge na `main`:** abrir o PR da `feature/dog-facts` e fazer o merge.
+> 2. **Fork público:** conferir no GitHub; não consigo ver a visibilidade daqui.
+> 3. **`prompt.md`:** ele termina no pedido da tradução, então esta troca e a anterior não estão nele. Regenero quando você disser que é o último passo.
+> 4. **Anotações do `prompt.md` e seção "AI usage" do README:** continuam sendo rascunho meu em seu nome, pendentes da sua leitura.
+> 5. **Branch `bkp`:** existe só localmente, com os commits antigos; basta não enviá-la.
+
+</details>
+
+### Prompt 2.20
+
+```text
+let's elaborate on the AI Usage in the readme.... the idea is that it is AI-assisted, I am the one who directs everything that needs to be done, especially regarding code structure, tests and validations... only the writing of the code is delegated, and later validated by me as well, but the logic is: describe what I need with the structures we already have exposed in the code, then the idea is to write the code, tests, coverage of what needs tests (tdd), commit, pr with a description of how it was, what was done and how it ended up... and in the case of a project that is already in progress the idea is: start with the test to cover what we have in code, then the change and the whole direction process above... leave something related to that.... and then yes, I believe it is the last commit of this structure and you can update the prompt.md
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+o AI Usage do readme vamos desenrolar.... mas a ideia é que seja AI Assistida, eu que direcionao tudo que precisa ser feito, principalemnte no quesito estrutura de código, testes, e validações... apenas o código escrito é delegado, e posteriormente validado por mim também, mas a lógica é: descrever o que preciso com as estruturas que temos já expostas no código, posteriormente a ideia é escrever o código, testes, cobertura do que precisa de testes (tdd), commit, pr com descrição de como era, o que foi feito e como ficou... e on caso de projeto que já está em andamento a ideia é: começar pelo teste para cobror o que temos de código, posteriomente alteração e todo o processo aceima de direcinamento... deixa algo relacionado a isso.... e ai sim, acredito que é o ú.timo commit dessa esrutura e pode atualizar o promptmd
+```
+
+</details>
+
+<details>
+<summary>Actions (1)</summary>
+
+- Rewrite the AI usage section of the README and list transcript messages still lacking a translation
+
+</details>
+
+**Outcome (a summary, not a verbatim AI message):**
+
+> The response to this last prompt is the rewritten "AI usage" section of `README.md` and this file, which the AI regenerated from the Claude Code session transcripts to include the latest exchanges. Its final message of that turn was written after the file was generated, so it is not reproduced here.
+
+**Annotation:** The first version of the "AI usage" section of the README was the AI's own summary. I replaced it with a description of how I direct AI-assisted work, which the AI wrote up from the prompt above. The "How that went in this challenge" part compares that process with what actually happened here, including where it differed (the Dog Facts tests were written alongside the code, not before it).
