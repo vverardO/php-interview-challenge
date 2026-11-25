@@ -12,7 +12,13 @@ class CatFactRepository
     {
         $pageSize = $options['pageSize'] ?? config('pagination.default_size');
 
-        return CatFact::with($relations)->paginate($pageSize);
+        $paginator = CatFact::with($relations)->paginate($pageSize);
+
+        if (isset($options['pageSize'])) {
+            $paginator->appends(['pageSize' => $options['pageSize']]);
+        }
+
+        return $paginator;
     }
 
     public function getById(int $id, array $relations = []): ?CatFact
