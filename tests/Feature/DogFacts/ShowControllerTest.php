@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -17,7 +18,7 @@ class ShowControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->dogFact = new DogFact();
+        $this->dogFact = new DogFact;
         $this->dogFact->fact = $this->fact;
 
         $this->dogFact->save();
@@ -32,7 +33,7 @@ class ShowControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->getJson("/api/v2/dog-facts/{$this->dogFact->id}");
 
@@ -41,7 +42,7 @@ class ShowControllerTest extends TestCase
         $response->assertJsonPath('data.fact', $this->fact);
     }
 
-    public function testNotFound(): void
+    public function test_not_found(): void
     {
         $response = $this->getJson('/api/v2/dog-facts/6942069');
 
@@ -49,14 +50,14 @@ class ShowControllerTest extends TestCase
         $this->assertNull($response->json('data'));
     }
 
-    public function testNotFoundIsNotCached(): void
+    public function test_not_found_is_not_cached(): void
     {
         $this->getJson('/api/v2/dog-facts/6942069');
 
         $this->assertFalse(Cache::has(DogFact::cacheKey(6942069)));
     }
 
-    public function testFirstLookupIsCached(): void
+    public function test_first_lookup_is_cached(): void
     {
         $this->assertFalse(Cache::has(DogFact::cacheKey($this->dogFact->id)));
 
@@ -71,7 +72,7 @@ class ShowControllerTest extends TestCase
         $response->assertJsonPath('data.fact', $this->fact);
     }
 
-    public function testCacheExpiresAfterConfiguredMinutes(): void
+    public function test_cache_expires_after_configured_minutes(): void
     {
         $this->getJson("/api/v2/dog-facts/{$this->dogFact->id}");
 
@@ -86,7 +87,7 @@ class ShowControllerTest extends TestCase
             ->assertJsonPath('data.fact', 'Changed without model events');
     }
 
-    public function testUpdateClearsCache(): void
+    public function test_update_clears_cache(): void
     {
         $this->getJson("/api/v2/dog-facts/{$this->dogFact->id}");
 
@@ -98,7 +99,7 @@ class ShowControllerTest extends TestCase
             ->assertJsonPath('data.fact', 'This is the updated v2 dog fact');
     }
 
-    public function testDestroyClearsCache(): void
+    public function test_destroy_clears_cache(): void
     {
         $this->getJson("/api/v2/dog-facts/{$this->dogFact->id}");
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -10,7 +11,7 @@ class StoreControllerTest extends TestCase
 {
     protected string $fact = 'This is a test fact from the v2 StoreControllerTest';
 
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->postJson('/api/v2/dog-facts', [
             'fact' => $this->fact,
@@ -23,7 +24,7 @@ class StoreControllerTest extends TestCase
         DogFact::destroy($response->json('data.id'));
     }
 
-    public function testValidationFailure(): void
+    public function test_validation_failure(): void
     {
         $this->postJson('/api/v2/dog-facts', [])->assertStatus(422);
         $this->postJson('/api/v2/dog-facts', ['fact' => null])->assertStatus(422);

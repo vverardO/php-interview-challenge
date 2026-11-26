@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -20,7 +21,7 @@ class IndexControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->getJson('/api/v2/dog-facts');
 
@@ -34,7 +35,7 @@ class IndexControllerTest extends TestCase
         ]);
     }
 
-    public function testDefaultPageSize(): void
+    public function test_default_page_size(): void
     {
         $response = $this->getJson('/api/v2/dog-facts');
 
@@ -43,7 +44,7 @@ class IndexControllerTest extends TestCase
         $response->assertJsonCount(25, 'data');
     }
 
-    public function testSearchUsesTwoSecondTimeout(): void
+    public function test_search_uses_two_second_timeout(): void
     {
         $statements = [];
 
@@ -57,7 +58,7 @@ class IndexControllerTest extends TestCase
         $this->assertSame('SET SESSION max_execution_time = 0', end($statements));
     }
 
-    public function testDefaultWhenSearchTimesOut(): void
+    public function test_default_when_search_times_out(): void
     {
         config(['dog-facts.index_timeout_ms' => 100]);
 
@@ -76,7 +77,7 @@ class IndexControllerTest extends TestCase
         $this->assertLessThan(1, $elapsedSeconds);
     }
 
-    public function testTimeoutIsResetAfterSearchTimesOut(): void
+    public function test_timeout_is_reset_after_search_times_out(): void
     {
         config(['dog-facts.index_timeout_ms' => 100]);
 
@@ -87,7 +88,7 @@ class IndexControllerTest extends TestCase
         $this->assertSame(0, (int) DB::selectOne('SELECT @@SESSION.max_execution_time AS timeout')->timeout);
     }
 
-    public function testNoDefaultWhenSearchIsFast(): void
+    public function test_no_default_when_search_is_fast(): void
     {
         $response = $this->getJson('/api/v2/dog-facts');
 
@@ -96,16 +97,16 @@ class IndexControllerTest extends TestCase
         $this->assertNull($response->json('message'));
     }
 
-    public function testNoDefaultWhenNothingMatches(): void
+    public function test_no_default_when_nothing_matches(): void
     {
-        $response = $this->getJson('/api/v2/dog-facts?' . http_build_query(['fact' => 'Missing fact ' . uniqid()]));
+        $response = $this->getJson('/api/v2/dog-facts?'.http_build_query(['fact' => 'Missing fact '.uniqid()]));
 
         $response->assertStatus(200);
         $response->assertJsonCount(0, 'data');
         $this->assertNull($response->json('message'));
     }
 
-    public function testSuccessWithPage(): void
+    public function test_success_with_page(): void
     {
         $response = $this->getJson('/api/v2/dog-facts?page=2');
 
@@ -113,7 +114,7 @@ class IndexControllerTest extends TestCase
         $response->assertJsonPath('meta.current_page', 2);
     }
 
-    public function testSuccessWithPageSize(): void
+    public function test_success_with_page_size(): void
     {
         $response = $this->getJson('/api/v2/dog-facts?pageSize=15');
 
@@ -122,26 +123,26 @@ class IndexControllerTest extends TestCase
         $response->assertJsonCount(15, 'data');
     }
 
-    public function testInvalidPageSize(): void
+    public function test_invalid_page_size(): void
     {
         $this->getJson('/api/v2/dog-facts?pageSize=0')->assertStatus(422);
         $this->getJson('/api/v2/dog-facts?pageSize=101')->assertStatus(422);
         $this->getJson('/api/v2/dog-facts?pageSize=abc')->assertStatus(422);
     }
 
-    public function testFilterByFact(): void
+    public function test_filter_by_fact(): void
     {
-        $fact = 'Unique v2 index filter fact ' . uniqid();
+        $fact = 'Unique v2 index filter fact '.uniqid();
         $dogFact = $this->createDogFact($fact);
 
-        $response = $this->getJson('/api/v2/dog-facts?' . http_build_query(['fact' => $fact]));
+        $response = $this->getJson('/api/v2/dog-facts?'.http_build_query(['fact' => $fact]));
 
         $response->assertStatus(200);
         $response->assertJsonPath('meta.total', 1);
         $response->assertJsonPath('data.0.id', $dogFact->id);
     }
 
-    public function testFilterByCreatedDates(): void
+    public function test_filter_by_created_dates(): void
     {
         $dogFact = $this->createDogFact('This is an old dog fact', '2001-01-01 10:00:00');
 
@@ -152,13 +153,13 @@ class IndexControllerTest extends TestCase
         $response->assertJsonPath('data.0.id', $dogFact->id);
     }
 
-    public function testInvalidDateFilters(): void
+    public function test_invalid_date_filters(): void
     {
         $this->getJson('/api/v2/dog-facts?createdFrom=01/01/2001')->assertStatus(422);
         $this->getJson('/api/v2/dog-facts?createdFrom=2001-01-02&createdUntil=2001-01-01')->assertStatus(422);
     }
 
-    public function testLinksKeepFiltersAndPageSize(): void
+    public function test_links_keep_filters_and_page_size(): void
     {
         $response = $this->getJson('/api/v2/dog-facts?fact=dog&pageSize=5');
 
@@ -169,7 +170,7 @@ class IndexControllerTest extends TestCase
 
     protected function createDogFact(string $fact, ?string $createdAt = null): DogFact
     {
-        $dogFact = new DogFact();
+        $dogFact = new DogFact;
         $dogFact->fact = $fact;
 
         if ($createdAt) {

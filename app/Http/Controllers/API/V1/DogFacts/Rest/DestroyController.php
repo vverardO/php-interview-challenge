@@ -20,7 +20,7 @@ class DestroyController extends Controller
     {
         $dogFact = $this->repository->getById($id);
 
-        if (!$dogFact) {
+        if (! $dogFact) {
             abort(404);
         }
 
@@ -30,7 +30,7 @@ class DestroyController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$deleted) {
+        if (! $deleted) {
             abort(500, 'Dog fact could not be deleted');
         }
 

@@ -17,7 +17,7 @@ class ShowController extends Controller
             fn () => DogFact::find($id)
         );
 
-        if (!$dogFact) {
+        if (! $dogFact) {
             abort(404);
         }
 

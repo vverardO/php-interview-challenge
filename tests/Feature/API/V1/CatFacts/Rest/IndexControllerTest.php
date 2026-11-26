@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\API\V1\CatFacts\Rest;
@@ -7,7 +8,7 @@ use Tests\TestCase;
 
 class IndexControllerTest extends TestCase
 {
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->getJson('/api/v1/cat-facts');
 
@@ -25,11 +26,11 @@ class IndexControllerTest extends TestCase
             'per_page',
             'prev_page_url',
             'to',
-            'total'
+            'total',
         ]);
     }
 
-    public function testSuccessWithPage(): void
+    public function test_success_with_page(): void
     {
         $response = $this->json('GET', '/api/v1/cat-facts', [
             'page' => 2,
@@ -41,7 +42,7 @@ class IndexControllerTest extends TestCase
         ]);
     }
 
-    public function testSuccessWithPageSize(): void
+    public function test_success_with_page_size(): void
     {
         $response = $this->json('GET', '/api/v1/cat-facts', [
             'pageSize' => 15,
@@ -53,7 +54,7 @@ class IndexControllerTest extends TestCase
         ]);
     }
 
-    public function testPageLinksKeepPageSize(): void
+    public function test_page_links_keep_page_size(): void
     {
         $response = $this->json('GET', '/api/v1/cat-facts', [
             'pageSize' => 15,

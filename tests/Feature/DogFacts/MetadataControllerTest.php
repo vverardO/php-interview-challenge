@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -7,7 +8,7 @@ use Tests\TestCase;
 
 class MetadataControllerTest extends TestCase
 {
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->getJson('/api/v2/dog-facts/metadata');
 
@@ -48,7 +49,7 @@ class MetadataControllerTest extends TestCase
         ]);
     }
 
-    public function testEveryFilterIsAccepted(): void
+    public function test_every_filter_is_accepted(): void
     {
         $response = $this->getJson('/api/v2/dog-facts?fact=dog&createdFrom=2001-01-01&createdUntil=2099-12-31&page=1&pageSize=10');
 

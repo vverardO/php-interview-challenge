@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -14,7 +15,7 @@ class UpdateControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->dogFact = new DogFact();
+        $this->dogFact = new DogFact;
         $this->dogFact->fact = 'This is the original v2 dog fact';
 
         $this->dogFact->save();
@@ -27,7 +28,7 @@ class UpdateControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSuccess(): void
+    public function test_success(): void
     {
         $response = $this->putJson("/api/v2/dog-facts/{$this->dogFact->id}", [
             'fact' => 'This is the updated v2 dog fact',
@@ -39,7 +40,7 @@ class UpdateControllerTest extends TestCase
         $this->assertSame('This is the updated v2 dog fact', $this->dogFact->fresh()->fact);
     }
 
-    public function testNotFound(): void
+    public function test_not_found(): void
     {
         $response = $this->putJson('/api/v2/dog-facts/6942069', [
             'fact' => 'This is the updated v2 dog fact',
@@ -48,7 +49,7 @@ class UpdateControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function testValidationFailure(): void
+    public function test_validation_failure(): void
     {
         $url = "/api/v2/dog-facts/{$this->dogFact->id}";
 

@@ -21,7 +21,7 @@ class UpdateController extends Controller
     {
         $catFact = $this->repository->getById($id);
 
-        if (!$catFact) {
+        if (! $catFact) {
             abort(404);
         }
 
@@ -31,7 +31,7 @@ class UpdateController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$updated) {
+        if (! $updated) {
             abort(500, 'Cat fact could not be updated');
         }
 

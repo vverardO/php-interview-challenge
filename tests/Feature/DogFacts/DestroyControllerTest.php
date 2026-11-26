@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\DogFacts;
@@ -8,9 +9,9 @@ use Tests\TestCase;
 
 class DestroyControllerTest extends TestCase
 {
-    public function testSuccess(): void
+    public function test_success(): void
     {
-        $dogFact = new DogFact();
+        $dogFact = new DogFact;
         $dogFact->fact = 'This is a v2 dog fact that will be deleted';
         $dogFact->save();
 
@@ -20,7 +21,7 @@ class DestroyControllerTest extends TestCase
         $this->assertNull(DogFact::find($dogFact->id));
     }
 
-    public function testNotFound(): void
+    public function test_not_found(): void
     {
         $response = $this->deleteJson('/api/v2/dog-facts/6942069');
 

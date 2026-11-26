@@ -16,7 +16,7 @@ class DogFactSeeder extends Seeder
                 continue; // this fact exists, skip it
             }
 
-            $model = new DogFact();
+            $model = new DogFact;
             $model->fact = $fact;
 
             $model->save();

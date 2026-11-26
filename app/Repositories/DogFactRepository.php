@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -28,7 +29,7 @@ class DogFactRepository
 
     public function store(array $options): ?DogFact
     {
-        $dogFact = new DogFact();
+        $dogFact = new DogFact;
 
         return $this->setFieldsAndPersist($dogFact, $options);
     }

@@ -18,7 +18,7 @@ class IndexRequest extends FormRequest
             'createdFrom' => ['nullable', 'date_format:Y-m-d'],
             'createdUntil' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:createdFrom'],
             'page' => ['nullable', 'integer', 'min:1'],
-            'pageSize' => ['nullable', 'integer', 'min:1', 'max:' . config('pagination.max_size')],
+            'pageSize' => ['nullable', 'integer', 'min:1', 'max:'.config('pagination.max_size')],
         ];
     }
 }

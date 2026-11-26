@@ -25,7 +25,7 @@ class StoreController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$catFact) {
+        if (! $catFact) {
             abort(500, 'Cat fact could not be saved');
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -28,7 +29,7 @@ class CatFactRepository
 
     public function store(array $options): ?CatFact
     {
-        $catFact = new CatFact();
+        $catFact = new CatFact;
 
         return $this->setFieldsAndPersist($catFact, $options);
     }
