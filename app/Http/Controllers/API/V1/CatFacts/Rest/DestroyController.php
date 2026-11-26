@@ -20,7 +20,7 @@ class DestroyController extends Controller
     {
         $catFact = $this->repository->getById($id);
 
-        if (!$catFact) {
+        if (! $catFact) {
             abort(404);
         }
 
@@ -30,7 +30,7 @@ class DestroyController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$deleted) {
+        if (! $deleted) {
             abort(500, 'Cat fact could not be deleted');
         }
 

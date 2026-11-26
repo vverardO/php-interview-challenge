@@ -19,7 +19,7 @@ class ShowController extends Controller
     {
         $catFact = $this->repository->getById($id);
 
-        if (!$catFact) {
+        if (! $catFact) {
             abort(404);
         }
 

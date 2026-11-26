@@ -25,7 +25,7 @@ class StoreController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$dogFact) {
+        if (! $dogFact) {
             abort(500, 'Dog fact could not be saved');
         }
 

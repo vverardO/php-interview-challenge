@@ -21,7 +21,7 @@ class UpdateController extends Controller
     {
         $dogFact = $this->repository->getById($id);
 
-        if (!$dogFact) {
+        if (! $dogFact) {
             abort(404);
         }
 
@@ -31,7 +31,7 @@ class UpdateController extends Controller
             abort(500, $exception->getMessage());
         }
 
-        if (!$updated) {
+        if (! $updated) {
             abort(500, 'Dog fact could not be updated');
         }
 

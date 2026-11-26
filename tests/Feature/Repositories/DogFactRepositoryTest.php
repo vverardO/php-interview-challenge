@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Feature\Repositories;
@@ -17,7 +18,7 @@ class DogFactRepositoryTest extends TestCase
     {
         parent::setUp();
 
-        $this->repository = new DogFactRepository();
+        $this->repository = new DogFactRepository;
     }
 
     protected function tearDown(): void
@@ -27,7 +28,7 @@ class DogFactRepositoryTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetAllWithPaginationUsesDefaultPageSize(): void
+    public function test_get_all_with_pagination_uses_default_page_size(): void
     {
         $paginator = $this->repository->getAllWithPagination();
 
@@ -36,7 +37,7 @@ class DogFactRepositoryTest extends TestCase
         $this->assertStringNotContainsString('pageSize', $paginator->url(2));
     }
 
-    public function testGetAllWithPaginationUsesGivenPageSize(): void
+    public function test_get_all_with_pagination_uses_given_page_size(): void
     {
         $paginator = $this->repository->getAllWithPagination(['pageSize' => 10]);
 
@@ -45,7 +46,7 @@ class DogFactRepositoryTest extends TestCase
         $this->assertStringContainsString('pageSize=10', $paginator->url(2));
     }
 
-    public function testGetById(): void
+    public function test_get_by_id(): void
     {
         $dogFact = $this->createDogFact('This is a dog fact to be found');
 
@@ -56,12 +57,12 @@ class DogFactRepositoryTest extends TestCase
         $this->assertSame('This is a dog fact to be found', $found->fact);
     }
 
-    public function testGetByIdReturnsNullWhenNotFound(): void
+    public function test_get_by_id_returns_null_when_not_found(): void
     {
         $this->assertNull($this->repository->getById(6942069));
     }
 
-    public function testStore(): void
+    public function test_store(): void
     {
         $dogFact = $this->repository->store(['fact' => 'This is a stored dog fact']);
         $this->dogFacts[] = $dogFact;
@@ -70,7 +71,7 @@ class DogFactRepositoryTest extends TestCase
         $this->assertSame('This is a stored dog fact', DogFact::find($dogFact->id)->fact);
     }
 
-    public function testUpdate(): void
+    public function test_update(): void
     {
         $dogFact = $this->createDogFact('This is the original dog fact');
 
@@ -80,7 +81,7 @@ class DogFactRepositoryTest extends TestCase
         $this->assertSame('This is the updated dog fact', DogFact::find($dogFact->id)->fact);
     }
 
-    public function testDestroy(): void
+    public function test_destroy(): void
     {
         $dogFact = $this->createDogFact('This is a dog fact that will be deleted');
 
@@ -90,7 +91,7 @@ class DogFactRepositoryTest extends TestCase
 
     protected function createDogFact(string $fact): DogFact
     {
-        $dogFact = new DogFact();
+        $dogFact = new DogFact;
         $dogFact->fact = $fact;
         $dogFact->save();
 
