@@ -2,12 +2,22 @@
 
 This file is the record required by the challenge's AI usage policy: the full conversations I had with an AI tool while working on this challenge.
 
-- **Tool:** Claude Code (Anthropic's CLI), running the Claude Fable 5.2 model.
+It has two parts:
+
+- [**Part 1 — The challenge (version 1)**](#part-1--the-challenge-version-1): what the statement asked for. Setup fixes, the Cat Facts bug and Dog Facts under `/api/v1`. Conversations 1 and 2, in Claude Code (Anthropic's CLI) with the Claude Fable 5.2 model.
+- [**Part 2 — Dog Facts v2 (my own approach)**](#part-2--dog-facts-v2-my-own-approach): a second version of Dog Facts under `/api/v2`, built the way I would approach it myself, on top of the delivered challenge. Conversation 3, in Cursor's agent with the Claude Opus 5.5 model.
+
+The conventions below apply to both parts:
+
 - **Language:** the conversations were in Portuguese. Everything below is shown in English, translated by the AI at my request. The exact original text of each prompt (typos included) and of each response is kept right below its translation, in a collapsed **Original** block. Messages that were already in English have no such block.
 - **Prompts** are in code blocks. **AI responses** are quoted.
 - **Actions** lists what the AI ran or edited between messages (commands, file reads and writes), in order. Command output is not reproduced.
 - **Annotations** are my notes on what I changed, rejected or corrected from the AI output. They are in bold, right after the exchange they refer to.
 
+
+# Part 1 — The challenge (version 1)
+
+The work the challenge asked for: getting the project to install and start, fixing the Cat Facts store bug and building Dog Facts following the Cat Facts conventions, plus the README and this file.
 
 ## Conversation 1 — getting `composer install` to run
 
@@ -1544,3 +1554,351 @@ sim, preenche também
 > The response to the last prompt above was done on GitHub: the AI set the title and description of pull request #3 (how it was, what was done, how it is now, how to test) and the repository description, and regenerated this file to include the latest exchanges. Its final message of that turn was written after the file was generated, so it is not reproduced here.
 
 **Annotation:** The pull request description and the repository description on GitHub were written by the AI at my request, following the format I use for pull requests.
+
+
+---
+
+# Part 2 — Dog Facts v2 (my own approach)
+
+Part 1 delivers what the challenge asked for, and version 1 stays exactly as delivered. This part is not required by the statement: it is a second version of Dog Facts under `/api/v2`, built the way I would approach the same resource myself, to show the difference between following the existing conventions and choosing my own.
+
+- **Tool:** Cursor's agent, with the Claude Opus 5.5 model.
+- **Branch:** `feature/dog-facts-v2`.
+- **Format:** the same as Part 1 (translated prompts and responses, originals in collapsed blocks, actions and my annotations).
+
+## What v2 ended up as
+
+This is a summary of the final state, not an AI message. Some early responses in the conversation below describe choices that I changed afterwards: the show default and the "Under construction" text.
+
+| | Version 1 (the challenge) | Version 2 (my approach) |
+|---|---|---|
+| **Controllers** | `API/V1/DogFacts/Rest`, invokable, through a repository | `Http/Controllers/DogFacts`, invokable, straight on the model, no repository |
+| **Responses** | Raw model and paginator JSON | `DogFactResource`, with `data`, `links` and `meta` |
+| **Listing** | `page` and `pageSize` | Filters (`fact`, `createdFrom`, `createdUntil`), `page` and `pageSize` (1 to 100), with links that keep every parameter |
+| **Discoverability** | — | `GET /dog-facts/metadata` lists the filters and pagination parameters |
+| **Heavy search** | — | 2 second limit on the query; when it is cut off, `200` with an empty page and a "data is still being processed" message |
+| **Retrieve** | Database lookup every time | First lookup cached for 5 minutes, cleared by update and delete through v2; missing facts return `404` and are not cached |
+| **Store** | `200` | `201 Created` |
+| **Tests** | 19 endpoint tests and 7 repository tests | 30 feature tests: every endpoint, filters, metadata, cache and timeout |
+
+## Conversation 3 — Dog Facts v2 in Cursor
+
+### Prompt 3.1
+
+```text
+take a look at the complete structure of the project... I want to make a v2 of this route of @app/Models/DogFact.php, but with the idea of invokable controllers, put it inside Http/Controllers/DogFacts (since the tool is only an api, it doesn't need an api directory), remove the repository, no need to use it, that is, build it directly with the model... create an api resource for DogFact if it doesn't exist yet, set up a simple filter approach with a metadata endpoint that returns the filters that can be applied together with perpage, some kind of local cache with the first lookup of the show, valid for a few minutes, with some default of empty or under construction, set up feature tests (all new endpoints + cache + default), and put the routes inside a v2.... also understand how the role of prompt.md turned out and do the same, but kind of v2 too, as if it were a new approach, the idea is to have what was asked and one made by me now, the way we are doing it.
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+da uma olahda na estrutura compelta do proejto... quero fazer um v2 dessa rota de @app/Models/DogFact.php , mas ocm a ideia de invokble controllers, joga dentro do Http/Controllers/DogFacts (pois a ferarmente é só api, não preicsa de diretório de api), tira fora o repositório não preisa usar, ou seja, monta direatmente com a model... cria um apireosurce do DogFact se ainda não existir, monta uma abordagem de filtro simples com um endpoint de metadata que retorna os filtros que podem ser aplicados juntamente de perpage, algum tipo de cache local com a primeira busca do show, que valha por alguns minutos, com algum default de vazio ou em construção, monta testes de feature (todos endpoints novos + cache + default), e joga as rotas dentro de um v2.... entende também como ficou o role do prompt.md e faz o mesmo, mas meio que v2 também, como se fosse uma nova abordagem, a ideia é ter o que foi pedido e uma feita por mim agora, da maneira que estamos fazendo.
+```
+
+</details>
+
+<details>
+<summary>Actions (12)</summary>
+
+- List the project files and read `prompt.md`, the v1 Dog Facts model, controllers, requests, repository, routes and tests, the README, `phpunit.xml` and the pagination config
+- Check git history, branches, the cache driver in `.env` and the running containers
+- Create the `feature/dog-facts-v2` branch
+- Write the `DogFact` model changes (fillable, `FILTERS`, `filter` scope, cache key), `config/dog-facts.php`, `max_size` in `config/pagination.php` and `DogFactResource`
+- Write `IndexRequest`, `SaveRequest` and the six invokable controllers in `app/Http/Controllers/DogFacts`
+- Write `routes/v2/dog-facts.php` and register the `v2` group in `routes/api.php`
+- Write the six feature test files in `tests/Feature/DogFacts`
+- Run the suite: 11 v1 Dog Facts tests fail with "Target class [config] does not exist"
+- Move cache invalidation from model events to the v2 update and destroy controllers
+- Run the suite again (71 passing) and list the v2 routes
+- Call the live v2 endpoints: metadata, filtered list, retrieve, missing fact and an oversized `pageSize`
+- Add the v2 section to `README.md` and this conversation to `prompt.md`
+
+</details>
+
+**AI response:**
+
+> Dog Facts v2 is ready at `/api/v2/dog-facts`, on the `feature/dog-facts-v2` branch, with the suite at 71 passing tests (46 from v1 and 25 new). Nothing was committed.
+>
+> What went in:
+> - **Invokable controllers** in `app/Http/Controllers/DogFacts/` (Index, Metadata, Show, Store, Update, Destroy), straight on the model, with no repository.
+> - **`DogFactResource`** (it did not exist), plus `IndexRequest` for filters and pagination and `SaveRequest` shared by store and update.
+> - **Filters:** `fact` (part of the text), `createdFrom` and `createdUntil` (`Y-m-d`), declared in `DogFact::FILTERS` and applied by the `filter` scope. `GET /dog-facts/metadata` returns that list plus `page` and `pageSize` (default 25, maximum 100). Page links keep the filters and `pageSize`.
+> - **Cache:** the first `GET /dog-facts/{id}` stores the fact for 5 minutes (`DOG_FACTS_CACHE_MINUTES`). Update and delete through v2 clear the key. A missing id is not cached and returns `404` with `{"data": {"id": ..., "fact": "Under construction"}}`.
+> - **Routes** in `routes/v2/dog-facts.php`, with `GET /api/v2` answering version 2. Store returns `201`.
+> - **Tests** in `tests/Feature/DogFacts/`: every new endpoint, the cache (first lookup cached, expiry over time, cleared by update and delete, misses not cached) and the default. No `RefreshDatabase`; they clean up their own rows like the existing ones.
+> - **README** with a v2 section, and **`prompt.md`** with this conversation as Conversation 3.
+>
+> I also called the running API: metadata, a filtered list, a retrieve, a missing id (`404` with the default) and `pageSize=500` (`422`) all behave as described.
+>
+> Decisions worth your review:
+> 1. **"Default of empty or under construction".** I read it as the response for an id that does not exist: `404` with a default body in the same shape. If you meant something else (a `200`, or caching the empty result too), it is a small change.
+> 2. **Cache invalidation lives in the v2 controllers, not in model events.** I tried model events first and 11 v1 tests broke: they delete their rows after `parent::tearDown()`, when the application is already torn down. To leave v1 untouched, changes made through v1 do not clear the v2 cache, so a v2 retrieval can be up to 5 minutes stale. This is documented in the README.
+> 3. **Shared pieces changed:** `DogFact` got `$fillable`, `FILTERS`, `cacheKey` and the `filter` scope, and `config/pagination.php` got `max_size`. V1 uses none of them and its tests still pass.
+>
+> On `prompt.md`: I added this as Conversation 3 in the same file, since the policy asks for one `prompt.md` at the root with every conversation, in the same format as the others. The header now names both tools. The annotation for this conversation is my draft; review it.
+>
+> Suggested commit message:
+>
+> ```
+> feat: add dog facts v2 with filters, metadata and cached show
+> ```
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> A v2 de Dog Facts está pronta em `/api/v2/dog-facts`, na branch `feature/dog-facts-v2`, com a suíte em 71 testes passando (46 da v1 e 25 novos). Nada foi commitado.
+>
+> O que entrou:
+> - **Controllers invokable** em `app/Http/Controllers/DogFacts/` (Index, Metadata, Show, Store, Update, Destroy), direto na model, sem repositório.
+> - **`DogFactResource`** (não existia), mais `IndexRequest` para filtros e paginação e `SaveRequest` compartilhado entre store e update.
+> - **Filtros:** `fact` (trecho do texto), `createdFrom` e `createdUntil` (`Y-m-d`), declarados em `DogFact::FILTERS` e aplicados pelo scope `filter`. O `GET /dog-facts/metadata` devolve essa lista mais `page` e `pageSize` (padrão 25, máximo 100). Os links de página mantêm os filtros e o `pageSize`.
+> - **Cache:** o primeiro `GET /dog-facts/{id}` guarda o fato por 5 minutos (`DOG_FACTS_CACHE_MINUTES`). Update e delete pela v2 limpam a chave. Id inexistente não é cacheado e devolve `404` com `{"data": {"id": ..., "fact": "Under construction"}}`.
+> - **Rotas** em `routes/v2/dog-facts.php`, com `GET /api/v2` respondendo versão 2. O store devolve `201`.
+> - **Testes** em `tests/Feature/DogFacts/`: todos os endpoints novos, o cache (primeira busca cacheada, expiração pelo tempo, limpeza por update e delete, ausência não cacheada) e o default. Sem `RefreshDatabase`; limpam os próprios registros como os existentes.
+> - **README** com uma seção da v2, e **`prompt.md`** com esta conversa como Conversa 3.
+>
+> Também chamei a API no ar: metadata, listagem filtrada, busca, id inexistente (`404` com o default) e `pageSize=500` (`422`) se comportam como descrito.
+>
+> Decisões que valem sua revisão:
+> 1. **"Default de vazio ou em construção".** Interpretei como a resposta para um id que não existe: `404` com um corpo padrão no mesmo formato. Se a ideia era outra (um `200`, ou cachear também o vazio), é uma mudança pequena.
+> 2. **A invalidação do cache ficou nos controllers da v2, não em eventos da model.** Tentei por eventos primeiro e 11 testes da v1 quebraram: eles apagam os registros depois do `parent::tearDown()`, quando a aplicação já foi desmontada. Para não mexer na v1, alterações feitas pela v1 não limpam o cache da v2, então uma busca na v2 pode ficar até 5 minutos desatualizada. Está documentado no README.
+> 3. **Peças compartilhadas alteradas:** a `DogFact` ganhou `$fillable`, `FILTERS`, `cacheKey` e o scope `filter`, e o `config/pagination.php` ganhou `max_size`. A v1 não usa nada disso e os testes dela continuam passando.
+>
+> Sobre o `prompt.md`: entrou como Conversa 3 no mesmo arquivo, já que a política pede um `prompt.md` na raiz com todas as conversas, no mesmo formato das outras. O cabeçalho agora cita as duas ferramentas. A anotação desta conversa é rascunho meu; revise.
+>
+> Mensagem de commit sugerida:
+>
+> ```
+> feat: add dog facts v2 with filters, metadata and cached show
+> ```
+
+</details>
+
+**Annotation:** Version 2 is my own direction, not part of the challenge: invokable controllers straight on the model, no repository, API resources, filters published by a metadata endpoint and a short-lived cache on retrieval, with feature tests for every endpoint, the cache and the default. The AI interpreted the "empty or under construction" default as the `404` body for a missing fact, and moved cache invalidation out of model events after they broke the version 1 tests; both choices are listed in its response for my review.
+
+### Prompt 3.2
+
+```text
+great, now for the controllers put one parameter per line, not one next to the other
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+show, agora para os controllers deixa um parametro por linha, não um do lado do outro
+```
+
+</details>
+
+<details>
+<summary>Actions (2)</summary>
+
+- Break the multi-parameter signature and calls in the v2 controllers into one per line
+- Run the suite (71 passing)
+
+</details>
+
+**AI response:**
+
+> Done: in the v2 controllers, every signature and call with more than one parameter now has one per line. The suite still has 71 passing tests, and nothing was committed.
+>
+> - **`UpdateController`:** `__invoke` receives `SaveRequest $request` and `DogFact $dogFact` on separate lines. It was the only signature with two parameters.
+> - **`MetadataController`:** the `map` closure parameters (`$filter`, `$name`) are on separate lines.
+> - **`IndexController`:** the page size went into a `$pageSize` variable, with the `validated()` arguments on separate lines, so `paginate($pageSize)` stays readable.
+> - **`ShowController`:** `response()->json()` for the default has the body and the `404` on separate lines. The `Cache::remember` call was already one argument per line.
+>
+> The other controllers (Store and Destroy) have only one parameter, so they did not change.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> Feito: nos controllers da v2, toda assinatura e chamada com mais de um parâmetro agora tem um por linha. A suíte continua com 71 testes passando, e nada foi commitado.
+>
+> - **`UpdateController`:** o `__invoke` recebe `SaveRequest $request` e `DogFact $dogFact` em linhas separadas. Era a única assinatura com dois parâmetros.
+> - **`MetadataController`:** os parâmetros da closure do `map` (`$filter`, `$name`) ficaram em linhas separadas.
+> - **`IndexController`:** o tamanho de página foi para uma variável `$pageSize`, com os argumentos do `validated()` em linhas separadas, para o `paginate($pageSize)` ficar legível.
+> - **`ShowController`:** o `response()->json()` do default tem o corpo e o `404` em linhas separadas. O `Cache::remember` já estava com um argumento por linha.
+>
+> Os outros controllers (Store e Destroy) têm um parâmetro só, então não mudaram.
+
+</details>
+
+**Annotation:** Code style correction requested by me: one parameter per line in the v2 controllers.
+
+### Prompt 3.3
+
+```text
+don't put a default in the show, only in the index
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+não poe default no show, só no index
+```
+
+</details>
+
+**AI response:**
+
+> I'll take the default out of the show (a missing id becomes a plain `404`) and move it to the index: when the list comes back empty, the response keeps the normal paginated shape and adds the "Under construction" message.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> Vou tirar o default do show (id inexistente vira um `404` simples) e levar para o index: quando a listagem voltar vazia, a resposta mantém o formato paginado normal e ganha a mensagem "Under construction".
+
+</details>
+
+<details>
+<summary>Actions (2)</summary>
+
+- Make the show return a plain `404` for a missing fact
+- Start adding an "empty list" default to the index and its tests
+
+</details>
+
+*I interrupted this request while the AI was still editing, to explain what the index default was for (next prompt).*
+
+### Prompt 3.4
+
+```text
+and the idea is, when there is a lot, the thing should not lock up the search, but fall back to a default, put a timeout and a default of about 2 seconds, and put a test for that behaviour
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+e a ideia é, quando tiver muita o negócio não deve de travar a busca, e sim cair em um default, poe timeout e default de uns 2 segundos, e poe teste pra esse comportamento
+```
+
+</details>
+
+<details>
+<summary>Actions (6)</summary>
+
+- Check which of the interrupted edits had been applied
+- Replace the "empty list" default with a timeout: the search runs with MySQL `max_execution_time` set from `DOG_FACTS_INDEX_TIMEOUT_MS` (default `2000`), reset to `0` afterwards, and error 3024 falls back to an empty page with a default message
+- Replace the index tests: the 2 second limit is applied and reset, a slow search (simulated with `SLEEP` and a 100 ms limit) returns the default quickly, the session limit is reset after a timeout, and fast or empty searches have no message
+- Run the suite (76 passing) and call the live show and index
+- Update the v2 section of `README.md`
+- Start recording these prompts in `prompt.md` (interrupted)
+
+</details>
+
+*I interrupted this request while the AI was writing to this file, to change the default message (next prompt).*
+
+### Prompt 3.5
+
+```text
+remove that under construction, and make it under processing or something, waiting for a response / data processing
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+tira esse under construction, e deixa under proccessment sei lá, aguardando retorno / processamento de dados
+```
+
+</details>
+
+<details>
+<summary>Actions (3)</summary>
+
+- Change the default message in `config/dog-facts.php`, the index test and the README
+- Run the suite (76 passing)
+- Record prompts 3.3 to 3.5 in this file
+
+</details>
+
+**AI response:**
+
+> The default message is now "Data is still being processed, please try again shortly", in `config/dog-facts.php`, the test and the README. "Under construction" no longer appears anywhere, and the 76 tests pass. Nothing was committed.
+>
+> Where the default stands after the last three prompts:
+> - **Show:** no default. A missing id returns a plain `404`, and the cache only stores facts that exist.
+> - **Index:** the search runs with MySQL's `max_execution_time` at 2 seconds (`DOG_FACTS_INDEX_TIMEOUT_MS`), and the limit goes back to `0` right after. If the query is cut off, the response is `200` with the same paginated shape, an empty page and the new message. A search that simply matches nothing returns an empty page without the message.
+> - **Tests:** the 2 second limit is applied and reset; a slow search (simulated with `SLEEP` per row and a 100 ms limit, so the test does not wait 2 seconds) returns the default in under a second; the session limit is reset after a timeout; fast and empty searches have no message.
+>
+> The timeout relies on MySQL's `max_execution_time`, which only applies to `SELECT` statements; that is all the index runs.
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> A mensagem default agora é "Data is still being processed, please try again shortly", no `config/dog-facts.php`, no teste e no README. "Under construction" não aparece mais em lugar nenhum, e os 76 testes passam. Nada foi commitado.
+>
+> Como ficou o default depois dos três últimos pedidos:
+> - **Show:** sem default. Id inexistente devolve `404` simples, e o cache só guarda fatos que existem.
+> - **Index:** a busca roda com o `max_execution_time` do MySQL em 2 segundos (`DOG_FACTS_INDEX_TIMEOUT_MS`), e o limite volta para `0` logo depois. Se a query for cortada, a resposta é `200` com o mesmo formato paginado, página vazia e a mensagem nova. Uma busca que só não encontra nada devolve página vazia sem a mensagem.
+> - **Testes:** o limite de 2 segundos é aplicado e resetado; uma busca lenta (simulada com `SLEEP` por linha e limite de 100 ms, para o teste não esperar 2 segundos) devolve o default em menos de um segundo; o limite da sessão é resetado depois de um timeout; buscas rápidas e vazias não têm mensagem.
+>
+> O timeout depende do `max_execution_time` do MySQL, que só vale para `SELECT`; é só isso que o index executa.
+
+</details>
+
+**Annotation:** I corrected the AI's reading of "default of empty or under construction" from Prompt 3.1: the show should not have a default at all, and the index default is for a heavy search, cut off by a 2 second timeout, not for an empty result. I also replaced the "Under construction" text with a message saying the data is still being processed.
+
+### Prompt 3.6
+
+```text
+the prompt.md can be updated with what is needed from what was done here, but keep it in a different section or structure, since this here is going to be a v2
+```
+
+<details>
+<summary>Original (Portuguese, as typed)</summary>
+
+```text
+o prompt.md pode atualizar com o necessário do que foi feito aqui, mas deixa em uma sessão ou estrutura diferente, visto que isso auqi vi ser um v2
+```
+
+</details>
+
+<details>
+<summary>Actions (2)</summary>
+
+- Read the heading structure of this file
+- Split it into Part 1 (the challenge) and Part 2 (v2), with a summary of the final v2 state, and record this prompt
+
+</details>
+
+**AI response:**
+
+> `prompt.md` is now split in two parts, and this conversation sits in its own part, separate from the challenge. Nothing was committed.
+>
+> - **Header:** it explains the two parts, with links, and says which tool and model each one used. The format conventions apply to both.
+> - **Part 1 — The challenge (version 1):** Conversations 1 and 2, unchanged, under a short introduction.
+> - **Part 2 — Dog Facts v2 (my own approach):** an introduction saying it goes beyond the statement and v1 stays as delivered, the tool and branch, and a "What v2 ended up as" table comparing v1 and v2. Then Conversation 3, with prompts 3.1 to 3.6.
+>
+> I kept the prompts and responses as they were said, including the early ones that were later changed (the show default and "Under construction"). The summary table at the top of Part 2 shows the final state, so a reader does not have to piece it together from the corrections.
+>
+> Suggested commit message:
+>
+> ```
+> docs: split prompt.md into the challenge and dog facts v2
+> ```
+
+<details>
+<summary>Original (Portuguese)</summary>
+
+> O `prompt.md` agora está dividido em duas partes, e esta conversa fica numa parte própria, separada do desafio. Nada foi commitado.
+>
+> - **Cabeçalho:** explica as duas partes, com links, e diz qual ferramenta e modelo cada uma usou. As convenções de formato valem para as duas.
+> - **Parte 1 — The challenge (version 1):** as Conversas 1 e 2, sem alteração, com uma introdução curta.
+> - **Parte 2 — Dog Facts v2 (my own approach):** uma introdução dizendo que vai além do enunciado e que a v1 fica como foi entregue, a ferramenta e a branch, e uma tabela "What v2 ended up as" comparando v1 e v2. Depois vem a Conversa 3, com os prompts 3.1 a 3.6.
+>
+> Mantive os prompts e as respostas como foram ditos, incluindo os primeiros que depois mudaram (o default no show e o "Under construction"). A tabela de resumo no topo da Parte 2 mostra o estado final, para quem lê não precisar montar isso a partir das correções.
+>
+> Mensagem de commit sugerida:
+>
+> ```
+> docs: split prompt.md into the challenge and dog facts v2
+> ```
+
+</details>
+
+**Annotation:** I asked for the v2 work to be kept apart from the challenge in this file, since it is a separate approach and not part of what the statement required.
